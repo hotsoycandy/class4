@@ -1,5 +1,7 @@
 const express = require('express')
 const crypto = require('crypto')
+const session = require('express-session')
+
 // connect db
 require('./lib/mongoose')
 const User = require('./models/User')
@@ -8,21 +10,31 @@ const app = express()
 app.use(express.json())
 app.use(express.urlencoded())
 app.use(express.static('./public'))
+app.set('view engine', 'ejs')
+app.use(session({
+  secret: '($*YA)*@#12asd^%#',
+  resave: false,
+  saveUninitialized: true
+}))
 
-let session = null
+app.get('/', (req, res) => {
+  console.log(req.session.user)
+  res.render('index', { user: req.session.user })
+})
+
+app.get('/posts', (req, res) => {
+  res.render('posts')
+})
 
 app.post('/login', async function (req, res) {
-  if (session) return res.send('logined')
-
   const { body: { id, pw } } = req
 
   const EPW = crypto.createHash('sha512').update(id + 'd!6b&^a' + pw).digest('base64')
 
-  const data = await User.find({ id, pw: EPW })
+  const data = await User.findOne({ id, pw: EPW })
 
-  if (data.length) {
-    session = id
-    console.log(session)
+  if (data) {
+    req.session.user = data
     return res.redirect('/')
   }
 
@@ -30,8 +42,8 @@ app.post('/login', async function (req, res) {
 })
 
 app.get('/logout', async function (req, res) {
-  session = null
-  res.redirect('/login.html')
+  delete req.session.user
+  res.redirect('/')
 })
 
 app.post('/registry', function (req, res) {
@@ -50,6 +62,6 @@ app.get('/users', async (req, res) => {
 })
 
 const port = 8000
-app.listen(port, () => {7
+app.listen(port, () => {
   console.log(`server is running on port: ${port}`)
 })

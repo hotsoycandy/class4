@@ -12,8 +12,14 @@
     <div class="login-form center">
       <h1>메인페이지</h1>
       <h3>메인페이지에 어서오세요!</h3>
-      <a href='/login.html'>로그인</a>
-      <a href='/logout'>로그아웃</a>
+
+      <% if (user) { %>
+        <h3>어서오세요! <%= user.name %>님</h3>
+        <a href='/logout'>로그아웃</a>
+      <% } else { %>
+          <a href='/login.html'>로그인</a>
+      <% } %>
+
     </div>
   </div>
 </body>
