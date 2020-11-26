@@ -4,7 +4,10 @@ const session = require('express-session')
 
 // connect db
 require('./lib/mongoose')
+
+// load models
 const User = require('./models/User')
+const Post = require('./models/Post')
 
 const app = express()
 app.use(express.json())
@@ -18,12 +21,29 @@ app.use(session({
 }))
 
 app.get('/', (req, res) => {
-  console.log(req.session.user)
   res.render('index', { user: req.session.user })
 })
 
-app.get('/posts', (req, res) => {
-  res.render('posts')
+app.get('/login', (req, res) => {
+  res.render('login')
+})
+
+app.get('/posts', async (req, res) => {
+  const posts = await Post.find({ })
+  console.log(posts)
+  res.render('posts', { posts })
+})
+
+app.get('/posts/create', (req, res) => {
+  if (!req.session.user) return res.redirect('/login')
+  res.render('createPost')
+})
+
+app.post('/posts', (req, res) => {
+  if (!req.session.user) return res.redirect('/login')
+  const { body: { title, content } } = req
+  Post.create({ title, content, writer: req.session.user._id })
+  return res.redirect('/posts')
 })
 
 app.post('/login', async function (req, res) {

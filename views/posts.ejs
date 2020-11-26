@@ -12,10 +12,12 @@
     <div class="post-wrap">
       <h1>게시판</h1>
       <ul>
-        <li>1 | </li>
-        <li>1 | </li>
-        <li>1 | </li>
+        <% posts.forEach((post, index) => { %>
+          <li><%= (index + 1) %> | <%= post.title %> | <%= post.hit %></li>
+        <% }) %>
       </ul>
+      <br />
+      <a href='/posts/create'><button>새로운 게시물</button></a>
     </div>
   </div>
 </body>

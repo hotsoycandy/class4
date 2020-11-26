@@ -39,6 +39,8 @@ const postSchema = Schema({
     required: true,
     default: () => new Date()
   }
+}, {
+  version: false
 })
 
 const Post = model('post', postSchema)
