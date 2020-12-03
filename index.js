@@ -1,6 +1,7 @@
 const express = require('express')
 const crypto = require('crypto')
 const session = require('express-session')
+// const methodOverride = require('method-override')
 
 // connect db
 require('./lib/mongoose')
@@ -10,6 +11,7 @@ const User = require('./models/User')
 const Post = require('./models/Post')
 
 const app = express()
+// app.use(methodOverride('_method'))
 app.use(express.json())
 app.use(express.urlencoded())
 app.use(express.static('./public'))
@@ -30,13 +32,24 @@ app.get('/login', (req, res) => {
 
 app.get('/posts', async (req, res) => {
   const posts = await Post.find({ })
-  console.log(posts)
   res.render('posts', { posts })
 })
 
 app.get('/posts/create', (req, res) => {
   if (!req.session.user) return res.redirect('/login')
-  res.render('createPost')
+  return res.render('createPost')
+})
+
+app.get('/posts/:postId', async (req, res) => {
+  const { params: { postId } } = req
+  const post = await Post.findOneAndUpdate({ _id: postId }, { $inc: { hit: 1 } }, { new: true })
+  res.render('postDetail', { post, user: req.session.user })
+})
+
+app.delete('/posts/:postId', async (req, res) => {
+  const { params: { postId } } = req
+  await Post.deleteOne({ _id: postId })
+  res.redirect('/posts')
 })
 
 app.post('/posts', (req, res) => {

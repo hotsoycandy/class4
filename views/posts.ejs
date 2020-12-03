@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
   <link rel="stylesheet" href="/css/main.css">
-  </style>
 </head>
 <body>
   <div class='wrap'>
@@ -13,7 +12,9 @@
       <h1>게시판</h1>
       <ul>
         <% posts.forEach((post, index) => { %>
-          <li><%= (index + 1) %> | <%= post.title %> | <%= post.hit %></li>
+          <li>
+            <a href='/posts/<%= post._id %>'><%= (index + 1) %> | <%= post.title %> | <%= post.hit %></a>
+          </li>
         <% }) %>
       </ul>
       <br />
