@@ -1,7 +1,7 @@
 const express = require('express')
 const crypto = require('crypto')
 const session = require('express-session')
-// const methodOverride = require('method-override')
+const methodOverride = require('method-override')
 
 // connect db
 require('./lib/mongoose')
@@ -11,7 +11,7 @@ const User = require('./models/User')
 const Post = require('./models/Post')
 
 const app = express()
-// app.use(methodOverride('_method'))
+app.use(methodOverride('_method'))
 app.use(express.json())
 app.use(express.urlencoded())
 app.use(express.static('./public'))
@@ -46,6 +46,35 @@ app.get('/posts/:postId', async (req, res) => {
   res.render('postDetail', { post, user: req.session.user })
 })
 
+app.post('/posts/:postId/comments', async (req, res) => {
+  const { params: { postId }, body: { content } } = req
+  await Post.updateOne({
+    _id: postId
+  }, {
+    $push: {
+      comments: {
+        content,
+        writer: req.session.user._id
+      }
+    }
+  })
+  res.redirect(`/posts/${postId}`)
+})
+
+app.get('/posts/:postId/modify', async (req, res) => {
+  const { params: { postId } } = req
+  const post = await Post.findOne({ _id: postId })
+  res.render('updatePost', { post })
+})
+
+app.put('/posts/:postId', async (req, res) => {
+  const { params: { postId }, body: { title, content } } = req
+
+  await Post.updateOne({ _id: postId }, { title, content })
+
+  res.redirect(`/posts/${postId}`)
+})
+
 app.delete('/posts/:postId', async (req, res) => {
   const { params: { postId } } = req
   await Post.deleteOne({ _id: postId })
@@ -62,7 +91,7 @@ app.post('/posts', (req, res) => {
 app.post('/login', async function (req, res) {
   const { body: { id, pw } } = req
 
-  const EPW = crypto.createHash('sha512').update(id + 'd!6b&^a' + pw).digest('base64')
+  const EPW = crypto.createHash('sha512').update(id + 'digitech' + pw + '!^*(sd').digest('base64')
 
   const data = await User.findOne({ id, pw: EPW })
 
@@ -83,7 +112,7 @@ app.post('/registry', function (req, res) {
   const { body: { id, pw, name } } = req
 
   // encryptedPassword
-  const EPW = crypto.createHash('sha512').update(id + 'd!6b&^a' + pw).digest('base64')
+  const EPW = crypto.createHash('sha512').update(id + 'digitech' + pw + '!^*(sd').digest('base64')
   User.create({ id, pw: EPW, name })
 
   res.redirect('/')

@@ -19,7 +19,7 @@ const postSchema = Schema({
     type: String,
     required: true
   },
-  comment: [commentSchema],
+  comments: [commentSchema],
   writer: {
     type: String,
     required: true
