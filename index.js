@@ -108,6 +108,14 @@ app.get('/logout', async function (req, res) {
   res.redirect('/')
 })
 
+app.delete('/posts/:postId/comments/:commentId', async (req, res) => {
+  const { postId, commentId } = req.params
+
+  await Post.updateOne({ _id: postId }, { $pull: { comments: { _id: commentId } } })
+
+  res.redirect(`/posts/${postId}`)
+})
+
 app.post('/registry', function (req, res) {
   const { body: { id, pw, name } } = req
 
